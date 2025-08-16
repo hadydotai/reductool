@@ -1,0 +1,15 @@
+[workspace]
+members = ["crates/*"]
+resolver = "2"
+
+[workspace.package]
+name = "reductool"
+description = "Allow Rust function to be called by LLMs"
+keywords = ["llm", "llm tools", "ai tool calling", "llm function calls"]
+categories = ["development-tools"]
+readme = "README.md"
+version = "0.1.0"
+edition = "2024"
+authors = ["Hady <oss@hady.ai>"]
+license-file = "LICENSE"
+repository = "https://github.com/hadydotai/reductool"
