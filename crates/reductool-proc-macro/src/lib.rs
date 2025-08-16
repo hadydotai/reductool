@@ -292,3 +292,126 @@ pub fn aitool(_attr: TokenStream, code: TokenStream) -> TokenStream {
     expanded.into()
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::{Value, json};
+    use syn::{FnArg, ItemFn, Pat, PatIdent, Type, parse_str};
+
+    // Build a (properties, required) pair using the same logic as the macro, driven by ty_to_schema.
+    fn build_props_and_required(func: &ItemFn) -> (serde_json::Map<String, Value>, Vec<String>) {
+        let mut props = serde_json::Map::new();
+        let mut required = Vec::new();
+
+        for input in &func.sig.inputs {
+            if let FnArg::Typed(pat_ty) = input {
+                let param_ident = match &*pat_ty.pat {
+                    Pat::Ident(PatIdent { ident, .. }) => ident.clone(),
+                    _ => continue,
+                };
+                let name = param_ident.to_string();
+
+                // Schema via production helper
+                let schema = ty_to_schema(&pat_ty.ty);
+                props.insert(name.clone(), schema);
+
+                // Required flag via same top-level Option<T> detection as macro
+                let mut is_optional = false;
+                if let Type::Path(tp) = &*pat_ty.ty {
+                    if path_last_ident_is(&tp.path, "Option") {
+                        is_optional = true;
+                    }
+                }
+                if !is_optional {
+                    required.push(name);
+                }
+            }
+        }
+        (props, required)
+    }
+
+    fn parse_fn(src: &str) -> ItemFn {
+        parse_str::<ItemFn>(src).expect("failed to parse function")
+    }
+
+    #[test]
+    fn test_primitives_and_refs() {
+        let func = parse_fn("fn f(a: i32, b: f64, c: bool, d: String, e: &str) {}");
+        let (props, required) = build_props_and_required(&func);
+
+        assert_eq!(props.get("a").unwrap(), &json!({ "type": "integer" }));
+        assert_eq!(props.get("b").unwrap(), &json!({ "type": "number" }));
+        assert_eq!(props.get("c").unwrap(), &json!({ "type": "boolean" }));
+        assert_eq!(props.get("d").unwrap(), &json!({ "type": "string" }));
+        assert_eq!(props.get("e").unwrap(), &json!({ "type": "string" }));
+
+        assert_eq!(required, vec!["a", "b", "c", "d", "e"]);
+    }
+
+    #[test]
+    fn test_array_and_tuple() {
+        let func = parse_fn("fn g(x: [i32; 3], y: (i32, String, bool)) {}");
+        let (props, required) = build_props_and_required(&func);
+
+        assert_eq!(
+            props.get("x").unwrap(),
+            &json!({ "type": "array", "items": { "type": "integer" } })
+        );
+        assert_eq!(
+            props.get("y").unwrap(),
+            &json!({
+                "type": "array",
+                "items": [
+                    { "type": "integer" },
+                    { "type": "string" },
+                    { "type": "boolean" }
+                ],
+                "minItems": 3,
+                "maxItems": 3
+            })
+        );
+
+        assert_eq!(required, vec!["x", "y"]);
+    }
+
+    #[test]
+    fn test_vec_and_option() {
+        let func = parse_fn("fn h(a: Vec<i32>, b: Option<String>, c: Option<Vec<bool>>) {}");
+        let (props, required) = build_props_and_required(&func);
+
+        assert_eq!(
+            props.get("a").unwrap(),
+            &json!({ "type": "array", "items": { "type": "integer" } })
+        );
+        assert_eq!(props.get("b").unwrap(), &json!({ "type": "string" }));
+        assert_eq!(
+            props.get("c").unwrap(),
+            &json!({ "type": "array", "items": { "type": "boolean" } })
+        );
+
+        // Only `a` is required; `b` and `c` are Option<_>
+        assert_eq!(required, vec!["a"]);
+    }
+
+    #[test]
+    fn test_json_value_and_bare_value() {
+        let func = parse_fn("fn j(a: serde_json::Value, b: Value) {}");
+        let (props, required) = build_props_and_required(&func);
+
+        assert_eq!(props.get("a").unwrap(), &json!({}));
+        assert_eq!(props.get("b").unwrap(), &json!({}));
+
+        assert_eq!(required, vec!["a", "b"]);
+    }
+
+    #[test]
+    fn test_custom_type_and_ref_of_option() {
+        // Custom type and &Option<String>; note &Option<String> is treated as required by current logic.
+        let func = parse_fn("fn k(a: MyType, b: &Option<String>) {}");
+        let (props, required) = build_props_and_required(&func);
+
+        assert_eq!(props.get("a").unwrap(), &json!({ "type": "string" }));
+        assert_eq!(props.get("b").unwrap(), &json!({ "type": "string" }));
+        assert_eq!(required, vec!["a", "b"]);
+    }
+}
