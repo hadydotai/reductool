@@ -11,7 +11,7 @@ authors.workspace = true
 license-file.workspace = true
 repository.workspace = true
 keywords = ["proc-macro", "codegen"]
-categories = ["development-tools::build-utilities"]
+categories = ["development-tools::build-utils"]
 
 [dependencies]
 Inflector = "0.11.4"
