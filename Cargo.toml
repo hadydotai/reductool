@@ -4,7 +4,7 @@ resolver = "2"
 
 [workspace.package]
 name = "reductool"
-description = "Allow Rust function to be called by LLMs"
+description = "Allow Rust functions to be called by LLMs"
 keywords = ["llm", "llm tools", "ai tool calling", "llm function calls"]
 categories = ["development-tools"]
 readme = "README.md"
