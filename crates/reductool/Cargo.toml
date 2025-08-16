@@ -1,0 +1,19 @@
+[package]
+name = "reductool"
+description.workspace = true
+keywords.workspace = true
+categories.workspace = true
+readme.workspace = true
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license-file.workspace = true
+repository.workspace = true
+
+[dependencies]
+anyhow = "1.0.99"
+futures = "0.3.31"
+linkme = "0.3.33"
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.142"
+reductool-proc-macro = { path = "../reductool-proc-macro" }

@@ -1,0 +1,25 @@
+[lib]
+proc-macro = true
+
+[package]
+name = "reductool-proc-macro"
+description = "Internal proc-macro crate for `reductool`. End users should depend on `reductool`."
+readme.workspace = true
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license-file.workspace = true
+repository.workspace = true
+keywords = ["proc-macro", "codegen"]
+categories = ["development-tools::build-utilities"]
+
+[dependencies]
+Inflector = "0.11.4"
+futures = "0.3.31"
+proc-macro2 = "1.0.99"
+quote = "1.0.40"
+serde_json = "1.0.142"
+syn = { version = "2.0.106", features = ["full"] }
+
+[dev-dependencies]
+trybuild = "1.0"
