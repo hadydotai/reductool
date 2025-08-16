@@ -1,4 +1,6 @@
-# Reductool - Allow Rust function to be called by LLMs
+# Reductool
+
+<img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/hadydotai/reductool/build.yml?branch=main&style=for-the-badge">
 
 This will let you turn Rust functions into LLM tools through an attribute macro. Here's a quick example
 
