@@ -1,0 +1,6 @@
+error: unsupported parameter pattern. expected a simple identifier like `arg: T`.
+       Examples of unsupported patterns: `(_: T)`, `(a, b): (T, U)`, `S { x, y }: S`.
+ --> tests/ui/pattern_tuple.rs:4:6
+  |
+4 | fn f((a, b): (i32, i32)) {}
+  |      ^^^^^^

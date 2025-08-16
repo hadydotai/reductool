@@ -1,0 +1,6 @@
+error: unsupported parameter pattern. expected a simple identifier like `arg: T`.
+       Examples of unsupported patterns: `(_: T)`, `(a, b): (T, U)`, `S { x, y }: S`.
+ --> tests/ui/pattern_struct.rs:9:6
+  |
+9 | fn f(S { x, y }: S) {}
+  |      ^^^^^^^^^^

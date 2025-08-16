@@ -1,0 +1,5 @@
+error: #[aitool] must be placed on a free-standing function (no `self`).Move the function out of the `impl` block or remove the receiver.
+ --> tests/ui/method_self_mut.rs:7:10
+  |
+7 |     fn m(&mut self, x: i32) {}
+  |          ^^^^^^^^^
