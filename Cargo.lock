@@ -214,7 +214,7 @@ dependencies = [
 
 [[package]]
 name = "reductool"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "anyhow",
  "futures",
@@ -226,7 +226,7 @@ dependencies = [
 
 [[package]]
 name = "reductool-proc-macro"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "Inflector",
  "futures",

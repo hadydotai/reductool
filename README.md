@@ -14,6 +14,46 @@ fn add(a: i32, b: i32) -> i32 {
 }
 ```
 
+Later when you need to get your functions as a tool schema, you'll call `reductool::tools_to_schema()`. When the LLM responds back
+with a tool call, you'll pass the name of the target tool and the arguments to `reductool::dispatch_tool(name, args)`.
+
+Here's a full example and more present in the [examples directory](https://github.com/hadydotai/reductool/tree/main/crates/reductool/examples)
+
+```rust
+#[reductool::aitool]
+/// Greet a person by name; defaults to "Guest" when not provided.
+fn greet(name: Option<String>) -> String {
+    format!("Hello, {}!", name.unwrap_or_else(|| "Guest".to_string()))
+}
+
+fn main() {
+    let result = futures::executor::block_on(async {
+        reductool::dispatch_tool("greet", serde_json::json!({"name": "World"}))
+            .await
+            .expect("failed result")
+    });
+    println!("result -> {}", result);
+}
+```
+
+The output from calling `reductool::tools_to_schema()` with the `greet` function defined up there looks like this
+
+```json
+  [{
+    "description": " Greet a person by name; defaults to \"Guest\" when not provided.",
+    "name": "greet",
+    "parameters": {
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [],
+      "type": "object"
+    }
+  }]
+```
+
 
 
 ## Supported parameter types
